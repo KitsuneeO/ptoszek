@@ -1,0 +1,2153 @@
+<!--
+    Ptoszek Auto Edition
+    Inspired by ptoszek.pl by Jaczup
+    Original: https://github.com/jaczup/ptoszek.pl
+    Based on theannoyingsite.com by Feross
+    
+    This version requires NO user interaction!
+-->
+<!doctype html>
+<html>
+<head>
+  <title>Ptoszek</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" id="theme-color-meta" content="#34eb7d">
+  <meta property="og:title" content="Ptoszek" />
+  <meta property="og:description" content="Obejrzyj zdjęcia Ptaków za frytę!" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    html, body {
+      width: 100%;
+      height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, 'avenir next', avenir,
+        'helvetica neue', helvetica, ubuntu, roboto, noto, 'segoe ui', arial, sans-serif;
+      overflow: hidden;
+      background: #000;
+      cursor: none !important;
+    }
+
+    @keyframes blurslowly {
+      0% { filter: none; }
+      92% { filter: blur(0); }
+      96% { filter: blur(1.5px); }
+      100% { filter: blur(0); }
+    }
+
+    body {
+      animation: blurslowly 15s infinite, shake 0.3s infinite;
+    }
+
+    @keyframes shake {
+      0% { transform: translate(0, 0) rotate(0deg); }
+      10% { transform: translate(-2px, -1px) rotate(-0.5deg); }
+      20% { transform: translate(3px, 1px) rotate(0.5deg); }
+      30% { transform: translate(-1px, 2px) rotate(0deg); }
+      40% { transform: translate(1px, -1px) rotate(0.5deg); }
+      50% { transform: translate(-2px, 2px) rotate(-0.5deg); }
+      60% { transform: translate(3px, 0px) rotate(0deg); }
+      70% { transform: translate(-1px, -2px) rotate(-0.5deg); }
+      80% { transform: translate(2px, 1px) rotate(0.5deg); }
+      90% { transform: translate(-1px, -1px) rotate(0deg); }
+      100% { transform: translate(0, 0) rotate(0deg); }
+    }
+
+    @keyframes rainbowBg {
+      0% { background-color: #ff0000; }
+      14% { background-color: #ff7f00; }
+      28% { background-color: #ffff00; }
+      42% { background-color: #00ff00; }
+      57% { background-color: #0000ff; }
+      71% { background-color: #4b0082; }
+      85% { background-color: #9400d3; }
+      100% { background-color: #ff0000; }
+    }
+
+    body.chaos {
+      animation: blurslowly 15s infinite, shake 0.15s infinite, rainbowBg 3s infinite;
+    }
+
+    .hello-message {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: white;
+      z-index: 10000;
+      text-align: center;
+      transition: opacity 0.5s;
+    }
+
+    .hello-message h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      color: #333;
+    }
+
+    .hello-message h2 {
+      font-size: 1.5em;
+      color: #555;
+      margin-bottom: 5px;
+    }
+
+    .hello-message h3 {
+      font-size: 1.1em;
+      color: #888;
+      margin-bottom: 20px;
+    }
+
+    .hello-message img {
+      width: 300px;
+      border-radius: 10px;
+    }
+
+    .logout-messages {
+      pointer-events: none;
+      color: red;
+      padding: 20px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 9000;
+      text-shadow: 2px 2px #FFF, 4px 4px 10px #000;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .logout-messages div {
+      margin-bottom: 3px;
+      animation: fadeInSlide 0.3s ease-out;
+    }
+
+    @keyframes fadeInSlide {
+      from { opacity: 0; transform: translateX(-20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .fake-window {
+      position: fixed;
+      width: 400px;
+      height: 280px;
+      border: 2px solid #666;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      z-index: 5000;
+      background: #1a1a1a;
+    }
+
+    .fake-window .title-bar {
+      height: 32px;
+      background: linear-gradient(180deg, #3a3a3a 0%, #2a2a2a 100%);
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      gap: 6px;
+    }
+
+    .fake-window .title-bar .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .fake-window .title-bar .dot.red { background: #ff5f57; }
+    .fake-window .title-bar .dot.yellow { background: #ffbd2e; }
+    .fake-window .title-bar .dot.green { background: #28c840; }
+
+    .fake-window .title-bar .title {
+      color: #ccc;
+      font-size: 12px;
+      margin-left: 10px;
+      flex: 1;
+      text-align: center;
+    }
+
+    .fake-window .window-content {
+      width: 100%;
+      height: calc(100% - 32px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .fake-window .window-content img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .fake-window .window-content video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .flying-bird {
+      position: fixed;
+      z-index: 4000;
+      pointer-events: none;
+      animation: flyAcross linear infinite;
+    }
+
+    @keyframes flyAcross {
+      0% { transform: translateX(-200px) translateY(0) rotate(0deg); }
+      25% { transform: translateX(25vw) translateY(-50px) rotate(10deg); }
+      50% { transform: translateX(50vw) translateY(20px) rotate(-5deg); }
+      75% { transform: translateX(75vw) translateY(-30px) rotate(8deg); }
+      100% { transform: translateX(110vw) translateY(10px) rotate(0deg); }
+    }
+
+    .fake-alert {
+      position: fixed;
+      z-index: 20000;
+      background: white;
+      border: 2px solid #999;
+      border-radius: 12px;
+      padding: 0;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+      min-width: 350px;
+      max-width: 420px;
+      animation: alertPop 0.2s ease-out;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      overflow: hidden;
+    }
+
+    .fake-alert .alert-header {
+      background: linear-gradient(180deg, #f0f0f0, #ddd);
+      padding: 12px 16px;
+      font-weight: bold;
+      font-size: 13px;
+      color: #333;
+      border-bottom: 1px solid #bbb;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .fake-alert .alert-header .alert-icon {
+      font-size: 20px;
+    }
+
+    .fake-alert .alert-body {
+      padding: 20px 16px;
+      font-size: 13px;
+      color: #333;
+      line-height: 1.5;
+    }
+
+    .fake-alert .alert-footer {
+      padding: 10px 16px 14px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .fake-alert .alert-btn {
+      padding: 5px 20px;
+      border: 1px solid #aaa;
+      border-radius: 5px;
+      background: linear-gradient(180deg, #fafafa, #e0e0e0);
+      font-size: 12px;
+      cursor: none;
+      color: #333;
+    }
+
+    .fake-alert .alert-btn.primary {
+      background: linear-gradient(180deg, #6ab4ff, #2d8cf0);
+      color: white;
+      border-color: #2070c0;
+    }
+
+    @keyframes alertPop {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .clipboard-toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(0,0,0,0.85);
+      color: #0f0;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 12px;
+      z-index: 15000;
+      animation: toastIn 0.3s ease-out;
+      max-width: 350px;
+    }
+
+    @keyframes toastIn {
+      from { transform: translateY(30px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .download-notification {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background: rgba(0,0,0,0.9);
+      color: white;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 12px;
+      z-index: 15000;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      animation: slideDown 0.3s ease-out;
+    }
+
+    @keyframes slideDown {
+      from { transform: translateY(-40px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .emoji-rain {
+      position: fixed;
+      font-size: 30px;
+      z-index: 3000;
+      pointer-events: none;
+      animation: emojiDrop linear forwards;
+    }
+
+    @keyframes emojiDrop {
+      0% { transform: translateY(-50px) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(110vh) rotate(720deg); opacity: 0.3; }
+    }
+
+    .glitch-text {
+      position: fixed;
+      z-index: 8000;
+      pointer-events: none;
+      font-size: 24px;
+      font-weight: bold;
+      color: #0f0;
+      text-shadow: 2px 2px #f00, -2px -2px #00f;
+      font-family: monospace;
+      animation: glitchAnim 0.5s infinite;
+    }
+
+    @keyframes glitchAnim {
+      0% { transform: translate(0); }
+      20% { transform: translate(-3px, 3px); }
+      40% { transform: translate(3px, -3px); }
+      60% { transform: translate(-2px, -2px); }
+      80% { transform: translate(2px, 2px); }
+      100% { transform: translate(0); }
+    }
+
+    .scan-line {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.03) 2px,
+        rgba(0, 0, 0, 0.03) 4px
+      );
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    .bird-cursor {
+      position: fixed;
+      pointer-events: none;
+      z-index: 30000;
+      font-size: 40px;
+      transition: left 0.05s, top 0.05s;
+      display: none;
+    }
+
+    /* TOTAL cursor kill */
+    *, *::before, *::after {
+      cursor: none !important;
+    }
+
+    /* Volume overlay */
+    .volume-overlay {
+      position: fixed;
+      top: 15px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.92);
+      color: #fff;
+      padding: 10px 24px;
+      border-radius: 10px;
+      z-index: 35000;
+      font-size: 13px;
+      font-family: monospace;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: slideDown 0.3s ease-out;
+      border: 1px solid #333;
+    }
+    .volume-bar {
+      width: 120px; height: 8px;
+      background: #333; border-radius: 4px; overflow: hidden;
+    }
+    .volume-bar-fill {
+      height: 100%; background: #f00; border-radius: 4px;
+      animation: volumePulse 0.5s infinite;
+    }
+    @keyframes volumePulse {
+      0%,100% { background: #f00; }
+      50% { background: #ff4444; }
+    }
+
+    .matrix-char {
+      position: fixed;
+      color: #0f0;
+      font-family: monospace;
+      font-size: 16px;
+      z-index: 2000;
+      pointer-events: none;
+      opacity: 0.7;
+      animation: matrixFall linear forwards;
+    }
+
+    @keyframes matrixFall {
+      0% { transform: translateY(0); opacity: 1; }
+      100% { transform: translateY(100vh); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Hello Message -->
+<div class="hello-message" id="helloMessage">
+  <h1>🐦 Siemano kolano!</h1>
+  <h2>Ptoszek Auto Edition</h2>
+  <h3>Nie musisz nic robić... już jest za późno 😈</h3>
+  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/A_small_cup_of_coffee.JPG/640px-A_small_cup_of_coffee.JPG" 
+       alt="Cute ptok" 
+       onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🐦</text></svg>'" />
+</div>
+
+<!-- Logout Messages Container -->
+<div class="logout-messages" id="logoutMessages"></div>
+
+<!-- Scan Lines Overlay -->
+<div class="scan-line" id="scanLine" style="display:none;"></div>
+
+<!-- Bird Cursor -->
+<div class="bird-cursor" id="birdCursor">🐦</div>
+
+<script>
+/*
+ * Ptoszek Auto Edition
+ * All effects auto-start without user interaction!
+ */
+
+// ============================================
+// CONFIGURATION
+// ============================================
+const BIRD_IMAGES = [
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/A_small_cup_of_coffee.JPG/640px-A_small_cup_of_coffee.JPG',
+  'https://cdn.pixabay.com/photo/2018/01/14/23/12/nature-3082832_640.jpg',
+  'https://cdn.pixabay.com/photo/2017/02/07/16/47/kingfisher-2046453_640.jpg',
+  'https://cdn.pixabay.com/photo/2016/11/29/05/45/astronomy-1867616_640.jpg',
+];
+
+const BIRD_EMOJIS = ['🐦', '🐧', '🦜', '🦆', '🦅', '🐤', '🐥', '🦉', '🦚', '🦩', '🕊️', '🐓', '🦃'];
+
+const PHRASES = [
+  'hello my name is ptoszek, lol',
+  'zostałeś zptoszkowany!',
+  'birds are funny lalalalalalalallalala',
+  'wgl co u cb bo u mn dbr',
+  'knuuurrr eksplozja',
+  'To był błąd, nie trzeba było wchodzić',
+  'hee haw hee haw hee haw hee haw hee haw',
+  'eyo eyo eyo eyo eyo eyo eyo eyo eyo eyo',
+  'aaaaaaaaaaaaaaaaaaaaaaaaaak',
+  'ptoszek cię lubi, ptoszek cię nie puści',
+  'nie uciekniesz od ptoszka',
+  'Obejrzyj zdjęcia Ptaków za frytę!',
+];
+
+const ALERT_MESSAGES = [
+  { title: 'Ptoszek', body: 'Zostałeś zptoszkowany! 🐦', icon: '🐦' },
+  { title: 'Uwaga!', body: 'Ptoszek przejął kontrolę nad Twoją przeglądarką!', icon: '⚠️' },
+  { title: 'System Alert', body: 'Wykryto 69420 ptoszków w systemie. Nie można usunąć.', icon: '🚨' },
+  { title: 'Ptoszek mówi:', body: 'Nie uciekniesz! Ctrl+W nie działa... a może działa? 😏', icon: '🐤' },
+  { title: 'Download Complete', body: 'Pobrano: ptoszek_vibes.exe (137 TB)', icon: '📥' },
+  { title: 'Ptoszek Security', body: 'Skanowanie systemu... Znaleziono: 100% ptoszka', icon: '🛡️' },
+  { title: 'Ważna wiadomość', body: 'Twój komputer jest teraz własnością Ptoszka. Dziękujemy!', icon: '💌' },
+  { title: 'Windows Defender', body: 'Zagrożenie: Ptoszek.exe - Klasyfikacja: Urocze', icon: '🔒' },
+  { title: 'Ptoszek Update', body: 'Aktualizacja ptoszka 69.420.1337 zainstalowana pomyślnie!', icon: '🔄' },
+  { title: 'Clipboard', body: 'Twój schowek został wypełniony ptoszkami! 🐦🐦🐦', icon: '📋' },
+];
+
+const LOGOUT_SITES = [
+  'Discord', 'Google', 'YouTube', 'GitHub', 'Amazon', 'Netflix', 
+  'Steam', 'Spotify', 'Reddit', 'Instagram', 'Facebook', 'Twitter/X',
+  'ChatGPT', 'LinkedIn', 'Pinterest', 'Twitch', 'TikTok', 'Allegro',
+  'OLX', 'Onet', 'Interia', 'Wordpress', 'Dropbox', 'eBay',
+  'Wikipedia', 'Roblox', 'Minecraft', 'Epic Games', 'Vimeo', 'Tumblr',
+  'StackOverflow', 'Microsoft', 'Yahoo', 'Skype', 'SoundCloud'
+];
+
+const GLITCH_TEXTS = [
+  'ZOSTAŁEŚ ZPTOSZKOWANY',
+  '🐦 PTOSZEK.PL 🐦',
+  'NIE UCIEKNIESZ',
+  'CTRL+W NIE POMOŻE',
+  'PTOSZEK ❤️ CIEBIE',
+  'ERROR 404: WYJŚCIE NIE ZNALEZIONE',
+  'sudo rm -rf /ptoszek',
+  'PTOSZEK IS WATCHING',
+  'RESISTANCE IS FUTILE',
+  '01110000 01110100 01101111 01110011 01111010 01100101 01101011',
+];
+
+const WINDOW_TITLES = [
+  'Ptoszek - Zdjęcia ptaków',
+  'ptoszek.exe',
+  'PTOSZEK VIRUS DETECTED',
+  'Ptoszek Player',
+  'bird_dance.mp4',
+  'Install Ptoszek?',
+  'Ptoszek Premium™',
+  'Downloading ptoszki...',
+];
+
+// ============================================
+// UTILITY FUNCTIONS
+// ============================================
+function rand(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function randFloat(min, max) {
+  return Math.random() * (max - min) + min;
+}
+
+function getRandomEntry(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function randomColor() {
+  return '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
+}
+
+// ============================================
+// HELLO MESSAGE - Auto remove after 2 seconds
+// ============================================
+setTimeout(() => {
+  const hello = document.getElementById('helloMessage');
+  if (hello) {
+    hello.style.opacity = '0';
+    setTimeout(() => {
+      hello.remove();
+      startChaos();
+    }, 500);
+  }
+}, 2000);
+
+// ============================================
+// MAIN CHAOS CONTROLLER
+// ============================================
+function startChaos() {
+  document.body.classList.add('chaos');
+  document.getElementById('scanLine').style.display = 'block';
+  
+  // Start all effects
+  startLogoutMessages();
+  startFakeWindows();
+  startEmojiRain();
+  startFlyingBirds();
+  startFakeAlerts();
+  startGlitchTexts();
+  startMatrixRain();
+  startSpeech();
+  startClipboardSpam();
+  blockBackButton();
+  fillHistory();
+  animateUrlWithEmojis();
+  rainbowThemeColor();
+  startVibration();
+  autoDownloadBirds();
+  startBirdCursor();
+  confirmPageUnload();
+  startMaxVolumeAudio();
+  startTheramin();
+  startMobileSpecial();
+  startPopupSpawner();
+  
+  // Speak first message
+  speak('To był błąd');
+}
+
+// ============================================
+// CURSOR: Completely hidden
+// ============================================
+function startBirdCursor() {
+  // Remove the bird cursor element - we want NOTHING visible
+  const cursor = document.getElementById('birdCursor');
+  if (cursor) cursor.remove();
+
+  // Force cursor none on everything, including dynamically added elements
+  const cursorStyle = document.createElement('style');
+  cursorStyle.textContent = '* { cursor: none !important; } html { cursor: none !important; }';
+  document.head.appendChild(cursorStyle);
+
+  // Periodically re-enforce cursor hiding
+  setInterval(() => {
+    document.documentElement.style.cursor = 'none';
+    document.body.style.cursor = 'none';
+    document.querySelectorAll('*').forEach(el => { el.style.cursor = 'none'; });
+  }, 2000);
+}
+
+// ============================================
+// LOGOUT MESSAGES
+// ============================================
+function startLogoutMessages() {
+  const container = document.getElementById('logoutMessages');
+  let index = 0;
+  
+  const interval = setInterval(() => {
+    if (index >= LOGOUT_SITES.length) {
+      clearInterval(interval);
+      // After all logout messages, add a final message
+      setTimeout(() => {
+        const div = document.createElement('div');
+        div.style.color = '#0f0';
+        div.style.fontSize = '16px';
+        div.innerHTML = '✅ Wylogowano ze wszystkiego! Miłego dnia! 🐦';
+        container.appendChild(div);
+      }, 500);
+      return;
+    }
+    
+    const div = document.createElement('div');
+    div.textContent = `Wylogowywanie się z ${LOGOUT_SITES[index]}...`;
+    container.appendChild(div);
+    index++;
+  }, 150);
+}
+
+// ============================================
+// FAKE BOUNCING WINDOWS
+// ============================================
+const fakeWindows = [];
+
+function createFakeWindow() {
+  const win = document.createElement('div');
+  win.className = 'fake-window';
+  
+  const titleBar = document.createElement('div');
+  titleBar.className = 'title-bar';
+  titleBar.innerHTML = `
+    <span class="dot red"></span>
+    <span class="dot yellow"></span>
+    <span class="dot green"></span>
+    <span class="title">${getRandomEntry(WINDOW_TITLES)}</span>
+  `;
+  
+  const content = document.createElement('div');
+  content.className = 'window-content';
+  
+  // Random content type
+  const type = Math.random();
+  if (type < 0.4) {
+    // Bird emoji / ASCII art
+    content.style.fontSize = '60px';
+    content.style.background = randomColor();
+    content.textContent = getRandomEntry(BIRD_EMOJIS);
+    // Animate the emoji
+    setInterval(() => {
+      content.textContent = getRandomEntry(BIRD_EMOJIS);
+      content.style.background = randomColor();
+    }, 800);
+  } else if (type < 0.7) {
+    // Fake search results
+    content.style.background = '#fff';
+    content.style.color = '#333';
+    content.style.padding = '10px';
+    content.style.fontSize = '11px';
+    content.style.flexDirection = 'column';
+    content.style.alignItems = 'flex-start';
+    content.style.overflow = 'hidden';
+    content.innerHTML = `
+      <div style="width:100%">
+        <div style="font-size:18px;color:#1a0dab;margin-bottom:5px">🔍 Google: "jak usunąć ptoszka"</div>
+        <div style="color:#006621;font-size:10px">https://ptoszek.pl/nie-da-sie</div>
+        <div style="margin-top:5px;color:#545454;font-size:11px">Niestety, nie da się usunąć ptoszka. Ptoszek jest wieczny. Ptoszek jest wszędzie. Ptoszek cię kocha...</div>
+        <hr style="margin:8px 0;border-color:#eee">
+        <div style="font-size:14px;color:#1a0dab">Ptoszek - Wikipedia</div>
+        <div style="color:#006621;font-size:10px">https://pl.wikipedia.org/wiki/Ptoszek</div>
+        <div style="margin-top:5px;color:#545454;font-size:11px">Ptoszek – gatunek cyfrowego ptaka zamieszkującego przeglądarki internetowe...</div>
+      </div>
+    `;
+  } else {
+    // Colorful chaos
+    content.style.background = `linear-gradient(${rand(0,360)}deg, ${randomColor()}, ${randomColor()}, ${randomColor()})`;
+    content.style.display = 'flex';
+    content.style.flexDirection = 'column';
+    content.style.alignItems = 'center';
+    content.style.justifyContent = 'center';
+    content.style.color = 'white';
+    content.style.textShadow = '2px 2px 4px rgba(0,0,0,0.5)';
+    content.innerHTML = `
+      <div style="font-size:50px">${getRandomEntry(BIRD_EMOJIS)}</div>
+      <div style="font-size:14px;font-weight:bold;margin-top:5px">${getRandomEntry(GLITCH_TEXTS)}</div>
+    `;
+    setInterval(() => {
+      content.style.background = `linear-gradient(${rand(0,360)}deg, ${randomColor()}, ${randomColor()}, ${randomColor()})`;
+    }, 500);
+  }
+  
+  win.appendChild(titleBar);
+  win.appendChild(content);
+  document.body.appendChild(win);
+  
+  // Random initial position
+  const x = rand(0, window.innerWidth - 420);
+  const y = rand(0, window.innerHeight - 300);
+  win.style.left = x + 'px';
+  win.style.top = y + 'px';
+  
+  // Random size variation
+  const scale = randFloat(0.6, 1.2);
+  win.style.transform = `scale(${scale})`;
+  
+  // Bounce animation
+  let vx = (Math.random() > 0.5 ? 1 : -1) * randFloat(1, 4);
+  let vy = (Math.random() > 0.5 ? 1 : -1) * randFloat(1, 4);
+  let posX = x;
+  let posY = y;
+  
+  const winData = { el: win, vx, vy, posX, posY, scale };
+  fakeWindows.push(winData);
+  
+  return winData;
+}
+
+function animateFakeWindows() {
+  fakeWindows.forEach(w => {
+    w.posX += w.vx;
+    w.posY += w.vy;
+    
+    const maxX = window.innerWidth - 400 * w.scale;
+    const maxY = window.innerHeight - 280 * w.scale;
+    
+    if (w.posX <= 0 || w.posX >= maxX) {
+      w.vx *= -1;
+      w.posX = Math.max(0, Math.min(w.posX, maxX));
+    }
+    if (w.posY <= 0 || w.posY >= maxY) {
+      w.vy *= -1;
+      w.posY = Math.max(0, Math.min(w.posY, maxY));
+    }
+    
+    w.el.style.left = w.posX + 'px';
+    w.el.style.top = w.posY + 'px';
+  });
+  
+  requestAnimationFrame(animateFakeWindows);
+}
+
+function startFakeWindows() {
+  // Create initial windows
+  for (let i = 0; i < 3; i++) {
+    setTimeout(() => createFakeWindow(), i * 800);
+  }
+  
+  // Keep spawning windows
+  setInterval(() => {
+    if (fakeWindows.length < 12) {
+      createFakeWindow();
+    }
+  }, 3000);
+  
+  animateFakeWindows();
+}
+
+// ============================================
+// EMOJI RAIN
+// ============================================
+function startEmojiRain() {
+  setInterval(() => {
+    const emoji = document.createElement('div');
+    emoji.className = 'emoji-rain';
+    emoji.textContent = getRandomEntry(BIRD_EMOJIS);
+    emoji.style.left = rand(0, window.innerWidth) + 'px';
+    emoji.style.top = '-50px';
+    emoji.style.fontSize = rand(20, 60) + 'px';
+    emoji.style.animationDuration = randFloat(2, 6) + 's';
+    document.body.appendChild(emoji);
+    
+    setTimeout(() => emoji.remove(), 7000);
+  }, 200);
+}
+
+// ============================================
+// FLYING BIRDS
+// ============================================
+function startFlyingBirds() {
+  setInterval(() => {
+    const bird = document.createElement('div');
+    bird.className = 'flying-bird';
+    bird.textContent = getRandomEntry(BIRD_EMOJIS);
+    bird.style.fontSize = rand(30, 80) + 'px';
+    bird.style.top = rand(10, window.innerHeight - 100) + 'px';
+    bird.style.left = '-200px';
+    bird.style.animationDuration = randFloat(3, 8) + 's';
+    document.body.appendChild(bird);
+    
+    setTimeout(() => bird.remove(), 9000);
+  }, 1500);
+}
+
+// ============================================
+// FAKE ALERT POPUPS
+// ============================================
+let alertCount = 0;
+
+function showFakeAlert() {
+  const msg = getRandomEntry(ALERT_MESSAGES);
+  const alert = document.createElement('div');
+  alert.className = 'fake-alert';
+  alert.style.left = rand(50, window.innerWidth - 450) + 'px';
+  alert.style.top = rand(50, window.innerHeight - 250) + 'px';
+  alert.style.transform = `rotate(${randFloat(-3, 3)}deg)`;
+  
+  alert.innerHTML = `
+    <div class="alert-header">
+      <span class="alert-icon">${msg.icon}</span>
+      ${msg.title}
+    </div>
+    <div class="alert-body">${msg.body}</div>
+    <div class="alert-footer">
+      <button class="alert-btn">Anuluj</button>
+      <button class="alert-btn primary">OK</button>
+    </div>
+  `;
+  
+  document.body.appendChild(alert);
+  alertCount++;
+  
+  // Auto-remove after random time
+  setTimeout(() => {
+    if (alert.parentNode) {
+      alert.style.opacity = '0';
+      alert.style.transition = 'opacity 0.3s';
+      setTimeout(() => alert.remove(), 300);
+    }
+  }, rand(2000, 5000));
+}
+
+function startFakeAlerts() {
+  // First alert quickly
+  setTimeout(showFakeAlert, 1000);
+  
+  // Then keep showing them
+  setInterval(() => {
+    if (alertCount < 20) {
+      showFakeAlert();
+    }
+  }, rand(2000, 4000));
+}
+
+// ============================================
+// GLITCH TEXTS
+// ============================================
+function startGlitchTexts() {
+  setInterval(() => {
+    const glitch = document.createElement('div');
+    glitch.className = 'glitch-text';
+    glitch.textContent = getRandomEntry(GLITCH_TEXTS);
+    glitch.style.left = rand(0, window.innerWidth - 300) + 'px';
+    glitch.style.top = rand(0, window.innerHeight - 50) + 'px';
+    glitch.style.fontSize = rand(14, 36) + 'px';
+    glitch.style.color = randomColor();
+    document.body.appendChild(glitch);
+    
+    setTimeout(() => {
+      if (glitch.parentNode) glitch.remove();
+    }, rand(1000, 4000));
+  }, 2000);
+}
+
+// ============================================
+// MATRIX RAIN
+// ============================================
+function startMatrixRain() {
+  const chars = 'PTOSZEK01鳥鶏鷹鷲🐦アイウエオカキクケコ';
+  
+  setInterval(() => {
+    const char = document.createElement('div');
+    char.className = 'matrix-char';
+    char.textContent = chars[rand(0, chars.length - 1)];
+    char.style.left = rand(0, window.innerWidth) + 'px';
+    char.style.top = '-20px';
+    char.style.fontSize = rand(12, 24) + 'px';
+    char.style.animationDuration = randFloat(3, 8) + 's';
+    char.style.color = Math.random() > 0.5 ? '#0f0' : randomColor();
+    document.body.appendChild(char);
+    
+    setTimeout(() => char.remove(), 9000);
+  }, 100);
+}
+
+// ============================================
+// SPEECH SYNTHESIS
+// ============================================
+function speak(phrase) {
+  if (!phrase) phrase = getRandomEntry(PHRASES);
+  try {
+    const utterance = new SpeechSynthesisUtterance(phrase);
+    utterance.lang = 'pl-PL';
+    utterance.volume = 1.0; // ALWAYS MAX VOLUME
+    utterance.rate = randFloat(0.5, 2.0);
+    utterance.pitch = randFloat(0.5, 2.0);
+    window.speechSynthesis.speak(utterance);
+  } catch(e) {}
+}
+
+function startSpeech() {
+  // Speak periodically
+  setInterval(() => {
+    speak();
+  }, 5000);
+}
+
+// ============================================
+// CLIPBOARD SPAM
+// ============================================
+function startClipboardSpam() {
+  const spamText = '🐦 ZOSTAŁEŚ ZPTOSZKOWANY! 🐦\n'.repeat(100) + 
+    'Ptoszek.pl Auto Edition\n' +
+    '🐦🐦🐦🐦🐦🐦🐦🐦🐦🐦\n'.repeat(50);
+  
+  setInterval(() => {
+    try {
+      navigator.clipboard.writeText(spamText).catch(() => {});
+    } catch(e) {}
+    
+    // Also try the old way
+    try {
+      const textarea = document.createElement('textarea');
+      textarea.value = spamText;
+      textarea.style.position = 'fixed';
+      textarea.style.left = '-9999px';
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      textarea.remove();
+    } catch(e) {}
+  }, 3000);
+  
+  // Show toast notification
+  setTimeout(() => {
+    const toast = document.createElement('div');
+    toast.className = 'clipboard-toast';
+    toast.textContent = '📋 Schowek: skopiowano "ZOSTAŁEŚ ZPTOSZKOWANY" x100';
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 4000);
+  }, 3000);
+}
+
+// ============================================
+// BLOCK BACK BUTTON & FILL HISTORY
+// ============================================
+function blockBackButton() {
+  window.addEventListener('popstate', () => {
+    window.history.forward();
+  });
+}
+
+function fillHistory() {
+  for (let i = 1; i < 50; i++) {
+    window.history.pushState({ page: i }, '', window.location.pathname);
+  }
+}
+
+// ============================================
+// ANIMATED URL WITH EMOJIS
+// ============================================
+function animateUrlWithEmojis() {
+  const frames = ['🐦', '🐧', '🦜', '🦆', '🦅', '🐤', '🐥', '🦉'];
+  let frameIndex = 0;
+  let direction = 1;
+  
+  setInterval(() => {
+    let hash = '';
+    for (let i = 0; i < 20; i++) {
+      hash += frames[(frameIndex + i) % frames.length];
+    }
+    try {
+      window.location.hash = hash;
+    } catch(e) {}
+    frameIndex += direction;
+    if (frameIndex >= frames.length) frameIndex = 0;
+  }, 150);
+}
+
+// ============================================
+// RAINBOW THEME COLOR
+// ============================================
+function rainbowThemeColor() {
+  const meta = document.getElementById('theme-color-meta');
+  setInterval(() => {
+    meta.setAttribute('content', randomColor());
+  }, 50);
+}
+
+// ============================================
+// VIBRATION - EXTREME MOBILE EDITION
+// ============================================
+const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS/i.test(navigator.userAgent);
+
+function startVibration() {
+  if (typeof navigator.vibrate !== 'function') return;
+
+  // ENDLESS vibration pattern — on/off/on/off repeating
+  // This creates a nonstop buzzing that won't stop
+  function vibrateForever() {
+    // Create a massive vibration pattern: vibrate 999ms, pause 50ms, repeat x200
+    const pattern = [];
+    for (let i = 0; i < 200; i++) {
+      pattern.push(999); // vibrate 999ms
+      pattern.push(30);  // tiny pause 30ms
+    }
+    navigator.vibrate(pattern);
+  }
+
+  vibrateForever();
+  // Re-trigger every 10 seconds in case it stops
+  setInterval(vibrateForever, 10000);
+
+  // Extra chaotic bursts
+  setInterval(() => {
+    navigator.vibrate([200, 50, 200, 50, 500, 100, 999, 50, 300, 30, 800]);
+  }, 3000);
+
+  // If on mobile, also do random intensity bursts
+  if (isMobile) {
+    setInterval(() => {
+      const burstPattern = [];
+      for (let i = 0; i < 50; i++) {
+        burstPattern.push(rand(50, 500));
+        burstPattern.push(rand(10, 50));
+      }
+      navigator.vibrate(burstPattern);
+    }, 5000);
+  }
+}
+
+// ============================================
+// AUTO-DOWNLOAD BIRD IMAGES (real generated JPGs + PNGs)
+// ============================================
+function autoDownloadBirds() {
+  const birdFiles = [
+    { name: 'ptoszek_cute.png', emoji: '🐦', bg: '#FFD700', text: 'ZOSTAŁEŚ ZPTOSZKOWANY!' },
+    { name: 'ptok_angry.png', emoji: '🦅', bg: '#FF4444', text: 'PTOSZEK CIĘ WIDZI' },
+    { name: 'bird_dance.png', emoji: '🦜', bg: '#44FF44', text: 'PTOSZEK.PL' },
+    { name: 'ptoszek_love.png', emoji: '🐤', bg: '#FF69B4', text: 'PTOSZEK ❤️ CIEBIE' },
+    { name: 'ptok_hacker.png', emoji: '🐧', bg: '#000', text: 'H4CK3D BY PT0SZ3K' },
+    { name: 'ptoszek_virus.png', emoji: '🦆', bg: '#9400D3', text: 'PTOSZEK.EXE' },
+    { name: 'zimowy_ptoszek.png', emoji: '🕊️', bg: '#87CEEB', text: 'ZIMOWY PTOSZEK' },
+    { name: 'grubyptok.png', emoji: '🐓', bg: '#FF8C00', text: 'GRUBY PTOK' },
+    { name: 'ptiszka.png', emoji: '🦩', bg: '#FF1493', text: 'PTISZKA' },
+    { name: 'kichajacy_ptoszek.png', emoji: '🦉', bg: '#8B4513', text: 'APSIK!' },
+    { name: 'ptoszek_king.png', emoji: '🦚', bg: '#4169E1', text: 'KRÓL PTOSZKÓW' },
+    { name: 'ptoszek_alert.png', emoji: '🦃', bg: '#DC143C', text: '⚠️ ALERT PTOSZKOWY ⚠️' },
+  ];
+
+  let downloadIndex = 0;
+  let downloadStack = 0; // notification stacking
+
+  function generateBirdImage(file) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 800;
+    canvas.height = 600;
+    const ctx = canvas.getContext('2d');
+
+    // Background
+    ctx.fillStyle = file.bg;
+    ctx.fillRect(0, 0, 800, 600);
+
+    // Random pattern
+    for (let i = 0; i < 30; i++) {
+      ctx.fillStyle = randomColor() + '40';
+      ctx.beginPath();
+      ctx.arc(rand(0, 800), rand(0, 600), rand(20, 100), 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Big emoji
+    ctx.font = '200px serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(file.emoji, 400, 350);
+
+    // Text
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 40px Arial';
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 4;
+    ctx.strokeText(file.text, 400, 520);
+    ctx.fillText(file.text, 400, 520);
+
+    // Watermark
+    ctx.fillStyle = 'rgba(255,255,255,0.3)';
+    ctx.font = '18px monospace';
+    ctx.fillText('ptoszek.pl — zostałeś zptoszkowany', 400, 580);
+
+    // Small birds scattered
+    ctx.font = '30px serif';
+    for (let i = 0; i < 15; i++) {
+      ctx.fillText(getRandomEntry(BIRD_EMOJIS), rand(0, 780), rand(0, 580));
+    }
+
+    return canvas;
+  }
+
+  function triggerDownload() {
+    if (downloadIndex >= birdFiles.length) downloadIndex = 0;
+    const file = birdFiles[downloadIndex];
+
+    try {
+      const canvas = generateBirdImage(file);
+      canvas.toBlob((blob) => {
+        if (!blob) return;
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = file.name;
+        a.click();
+        URL.revokeObjectURL(url);
+      }, 'image/png');
+    } catch(e) {}
+
+    // Show download notification
+    const notif = document.createElement('div');
+    notif.className = 'download-notification';
+    notif.innerHTML = `📥 Pobieranie: ${file.name} (${rand(200,900)} KB)`;
+    notif.style.top = (10 + (downloadStack % 6) * 45) + 'px';
+    document.body.appendChild(notif);
+    downloadStack++;
+    setTimeout(() => { notif.remove(); downloadStack = Math.max(0, downloadStack - 1); }, 3000);
+
+    downloadIndex++;
+  }
+
+  // Start downloads quickly
+  setTimeout(triggerDownload, 1500);
+  setTimeout(triggerDownload, 2500);
+  setTimeout(triggerDownload, 3500);
+
+  // Then keep downloading every 4 seconds
+  setInterval(triggerDownload, 4000);
+}
+
+// ============================================
+// POPUP SPAWNER — Opens new browser windows/tabs
+// ============================================
+const POPUP_URL = 'https://kitsuneeo.github.io/ptoszek/';
+const spawnedWindows = [];
+
+function startPopupSpawner() {
+  // Try to open windows immediately (may be blocked without user gesture)
+  spawnPopups(3);
+
+  // On EVERY user interaction, try to spawn more
+  const spawnEvents = ['click', 'mousedown', 'mouseup', 'keydown', 'keyup', 'keypress', 'touchstart', 'touchend'];
+  spawnEvents.forEach(evt => {
+    document.addEventListener(evt, () => {
+      spawnPopups(rand(1, 3));
+    }, { capture: true, passive: true });
+  });
+
+  // Periodically try to spawn (will only work if browser allows)
+  setInterval(() => {
+    spawnPopups(1);
+  }, 5000);
+
+  // Periodically try to re-focus spawned windows to bring them to front
+  setInterval(() => {
+    spawnedWindows.forEach(w => {
+      try {
+        if (w && !w.closed) w.focus();
+      } catch(e) {}
+    });
+  }, 3000);
+
+  // If a spawned window gets closed, spawn a new one on next interaction
+  setInterval(() => {
+    // Clean up closed windows from array
+    for (let i = spawnedWindows.length - 1; i >= 0; i--) {
+      try {
+        if (spawnedWindows[i].closed) spawnedWindows.splice(i, 1);
+      } catch(e) {
+        spawnedWindows.splice(i, 1);
+      }
+    }
+  }, 2000);
+}
+
+function spawnPopups(count) {
+  for (let i = 0; i < count; i++) {
+    setTimeout(() => {
+      try {
+        // Random position & size
+        const w = rand(400, 800);
+        const h = rand(300, 600);
+        const x = rand(0, Math.max(0, screen.availWidth - w));
+        const y = rand(0, Math.max(0, screen.availHeight - h));
+        const features = `width=${w},height=${h},left=${x},top=${y},menubar=no,toolbar=no,location=no,status=no,resizable=yes,scrollbars=no`;
+
+        const win = window.open(POPUP_URL, '_blank', features);
+        if (win) {
+          spawnedWindows.push(win);
+
+          // Try to move/resize the window after it opens
+          setTimeout(() => {
+            try {
+              if (!win.closed) {
+                win.moveTo(rand(0, screen.availWidth - 400), rand(0, screen.availHeight - 300));
+                win.resizeTo(rand(300, 700), rand(250, 500));
+              }
+            } catch(e) {}
+          }, 1000);
+
+          // Try to refocus after a bit
+          setTimeout(() => {
+            try { if (!win.closed) win.focus(); } catch(e) {}
+          }, 500);
+
+          // Show notification
+          showPopupNotification();
+        }
+      } catch(e) {}
+    }, i * 200);
+  }
+}
+
+function showPopupNotification() {
+  const notif = document.createElement('div');
+  notif.style.cssText = `
+    position: fixed;
+    bottom: ${rand(20, 200)}px;
+    left: ${rand(20, window.innerWidth - 350)}px;
+    background: rgba(0,0,0,0.9);
+    color: #0f0;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-family: monospace;
+    font-size: 12px;
+    z-index: 35000;
+    animation: toastIn 0.3s ease-out;
+    border: 1px solid #0f0;
+    pointer-events: none;
+  `;
+  const msgs = [
+    '🐦 Nowe okno ptoszka otwarte!',
+    '🐦 Ptoszek się rozmnożył!',
+    '🐦 Spawn: ptoszek.exe — PID ' + rand(1000, 9999),
+    '🐦 Kolejny ptoszek wyleciał z gniazda!',
+    '🐦 window.open() → ptoszek #' + spawnedWindows.length,
+    '🐦 Nowy ptoszek dołączył do stada!',
+    '🐦 Ptoszek.fork() → nowy proces',
+  ];
+  notif.textContent = getRandomEntry(msgs);
+  document.body.appendChild(notif);
+  setTimeout(() => {
+    notif.style.opacity = '0';
+    notif.style.transition = 'opacity 0.5s';
+    setTimeout(() => notif.remove(), 500);
+  }, 2500);
+}
+
+// Also try to open popups via <a> tag clicks (helps bypass some popup blockers)
+function forceOpenPopup() {
+  const a = document.createElement('a');
+  a.href = POPUP_URL;
+  a.target = '_blank';
+  a.rel = 'noopener';
+  a.style.position = 'fixed';
+  a.style.left = '-9999px';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+// ============================================
+// MAX VOLUME AUDIO SYSTEM
+// ============================================
+let audioCtx = null;
+let masterGain = null;
+
+function startMaxVolumeAudio() {
+  try {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    masterGain = audioCtx.createGain();
+    masterGain.gain.value = 1.0; // MAX
+    masterGain.connect(audioCtx.destination);
+
+    // Show volume overlay
+    showVolumeOverlay();
+
+    // Play annoying oscillator beeps
+    playAnnoyingBeeps();
+
+    // Play multiple layered audio sources at max volume
+    playChaoticAudio();
+
+    // Periodically ensure audio context is running
+    setInterval(() => {
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      // Keep gain at max
+      if (masterGain) masterGain.gain.value = 1.0;
+    }, 500);
+
+  } catch(e) {}
+
+  // Also force max volume on all HTML audio/video elements continuously
+  setInterval(() => {
+    document.querySelectorAll('audio, video').forEach(el => {
+      el.volume = 1.0;
+      el.muted = false;
+    });
+  }, 500);
+
+  // Also force volume with speech synthesis (always max)
+  setInterval(() => {
+    try {
+      const u = new SpeechSynthesisUtterance('');
+      u.volume = 1.0;
+    } catch(e) {}
+  }, 3000);
+}
+
+function showVolumeOverlay() {
+  const overlay = document.createElement('div');
+  overlay.className = 'volume-overlay';
+  overlay.innerHTML = `
+    🔊 GŁOŚNOŚĆ: 100% (MAX)
+    <div class="volume-bar"><div class="volume-bar-fill" style="width:100%"></div></div>
+    ⚠️
+  `;
+  document.body.appendChild(overlay);
+  setTimeout(() => {
+    overlay.style.opacity = '0';
+    overlay.style.transition = 'opacity 1s';
+    setTimeout(() => overlay.remove(), 1000);
+  }, 5000);
+
+  // Show it again periodically
+  setInterval(() => {
+    const v = document.createElement('div');
+    v.className = 'volume-overlay';
+    v.innerHTML = '🔊 GŁOŚNOŚĆ: 100% — NIE DA SIĘ ŚCISZYĆ 🐦';
+    document.body.appendChild(v);
+    setTimeout(() => { v.style.opacity = '0'; v.style.transition = 'opacity 0.5s'; setTimeout(() => v.remove(), 500); }, 3000);
+  }, 15000);
+}
+
+function playAnnoyingBeeps() {
+  if (!audioCtx) return;
+
+  // Random beep every 2-5 seconds
+  function beep() {
+    try {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = ['sine', 'square', 'sawtooth', 'triangle'][rand(0, 3)];
+      osc.frequency.value = rand(200, 4000);
+      gain.gain.value = randFloat(0.3, 1.0);
+      osc.connect(gain);
+      gain.connect(masterGain);
+      osc.start();
+      osc.stop(audioCtx.currentTime + randFloat(0.1, 0.8));
+    } catch(e) {}
+  }
+
+  setInterval(beep, rand(2000, 5000));
+  // Initial burst of beeps
+  for (let i = 0; i < 5; i++) {
+    setTimeout(beep, i * 300);
+  }
+}
+
+function playChaoticAudio() {
+  if (!audioCtx) return;
+
+  // Continuous low drone
+  try {
+    const drone = audioCtx.createOscillator();
+    const droneGain = audioCtx.createGain();
+    drone.type = 'sawtooth';
+    drone.frequency.value = 80;
+    droneGain.gain.value = 0.15;
+    drone.connect(droneGain);
+    droneGain.connect(masterGain);
+    drone.start();
+
+    // Slowly modulate the drone
+    setInterval(() => {
+      drone.frequency.value = rand(40, 150);
+    }, 3000);
+  } catch(e) {}
+
+  // White noise generator
+  try {
+    const bufferSize = 2 * audioCtx.sampleRate;
+    const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    const output = noiseBuffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      output[i] = Math.random() * 2 - 1;
+    }
+    const whiteNoise = audioCtx.createBufferSource();
+    whiteNoise.buffer = noiseBuffer;
+    whiteNoise.loop = true;
+    const noiseGain = audioCtx.createGain();
+    noiseGain.gain.value = 0.08; // subtle but annoying
+    whiteNoise.connect(noiseGain);
+    noiseGain.connect(masterGain);
+    whiteNoise.start();
+
+    // Periodically spike the noise volume
+    setInterval(() => {
+      noiseGain.gain.value = randFloat(0.05, 0.3);
+      setTimeout(() => { noiseGain.gain.value = 0.08; }, 500);
+    }, 4000);
+  } catch(e) {}
+}
+
+// ============================================
+// THERAMIN - Annoying mouse-based sound
+// ============================================
+function startTheramin() {
+  if (!audioCtx) {
+    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) { return; }
+  }
+  if (!masterGain) {
+    try {
+      masterGain = audioCtx.createGain();
+      masterGain.gain.value = 1.0;
+      masterGain.connect(audioCtx.destination);
+    } catch(e) { return; }
+  }
+
+  try {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    const wave = audioCtx.createPeriodicWave(
+      Array(10).fill(0).map((v, i) => Math.cos(i)),
+      Array(10).fill(0).map((v, i) => Math.sin(i))
+    );
+    osc.setPeriodicWave(wave);
+    osc.connect(gain);
+    gain.connect(masterGain);
+    gain.gain.value = 0.5;
+    osc.start(0);
+
+    document.addEventListener('mousemove', e => {
+      const pitch = (e.clientX / window.innerWidth);
+      const volume = (e.clientY / window.innerHeight);
+      osc.frequency.value = 50 + pitch * 4000;
+      gain.gain.value = volume * 0.8;
+    });
+
+    // On mobile, use touch
+    document.addEventListener('touchmove', e => {
+      if (e.touches.length > 0) {
+        const touch = e.touches[0];
+        const pitch = (touch.clientX / window.innerWidth);
+        const volume = (touch.clientY / window.innerHeight);
+        osc.frequency.value = 50 + pitch * 4000;
+        gain.gain.value = volume * 0.8;
+      }
+    }, { passive: true });
+  } catch(e) {}
+}
+
+// ============================================
+// MOBILE SPECIAL CHAOS
+// ============================================
+function startMobileSpecial() {
+  if (!isMobile) return;
+
+  // Extra speech on mobile — more frequent
+  setInterval(() => {
+    speak();
+  }, 3000);
+
+  // Auto-play audio element at max volume (helps bypass some mobile restrictions)
+  try {
+    const audio = document.createElement('audio');
+    // Generate a beep as a data URI
+    const sampleRate = 8000;
+    const duration = 2;
+    const samples = sampleRate * duration;
+    const buffer = new ArrayBuffer(44 + samples * 2);
+    const view = new DataView(buffer);
+    // WAV header
+    const writeString = (offset, str) => { for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i)); };
+    writeString(0, 'RIFF');
+    view.setUint32(4, 36 + samples * 2, true);
+    writeString(8, 'WAVE');
+    writeString(12, 'fmt ');
+    view.setUint32(16, 16, true);
+    view.setUint16(20, 1, true);
+    view.setUint16(22, 1, true);
+    view.setUint32(24, sampleRate, true);
+    view.setUint32(28, sampleRate * 2, true);
+    view.setUint16(32, 2, true);
+    view.setUint16(34, 16, true);
+    writeString(36, 'data');
+    view.setUint32(40, samples * 2, true);
+    for (let i = 0; i < samples; i++) {
+      const t = i / sampleRate;
+      const val = Math.sin(2 * Math.PI * 440 * t) * 0.8 + Math.sin(2 * Math.PI * 880 * t) * 0.3;
+      view.setInt16(44 + i * 2, val * 32767, true);
+    }
+    const blob = new Blob([buffer], { type: 'audio/wav' });
+    audio.src = URL.createObjectURL(blob);
+    audio.loop = true;
+    audio.volume = 1.0;
+    audio.play().catch(() => {});
+    document.body.appendChild(audio);
+  } catch(e) {}
+
+  // Attempt to lock screen orientation
+  try {
+    screen.orientation.lock('portrait').catch(() => {});
+  } catch(e) {}
+
+  // Accelerometer chaos detection — if phone is shaken, do extra stuff
+  if (window.DeviceMotionEvent) {
+    window.addEventListener('devicemotion', (e) => {
+      const acc = e.accelerationIncludingGravity;
+      if (acc && (Math.abs(acc.x) > 15 || Math.abs(acc.y) > 15 || Math.abs(acc.z) > 25)) {
+        // Phone is being shaken — MORE CHAOS
+        speak('Nie potrząsaj mną! Ptoszek się boi!');
+        navigator.vibrate && navigator.vibrate([999, 50, 999, 50, 999]);
+        spawnRandomBirdImage();
+        spawnRandomBirdImage();
+        spawnRandomBirdImage();
+      }
+    });
+  }
+
+  // Touch events — every touch triggers vibration + sound
+  document.addEventListener('touchstart', () => {
+    navigator.vibrate && navigator.vibrate([300, 50, 300, 50, 500]);
+    // Resume audio context on touch (mobile requires user gesture)
+    if (audioCtx && audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+    // Re-trigger volume max
+    document.querySelectorAll('audio, video').forEach(el => {
+      el.volume = 1.0;
+      el.muted = false;
+      el.play().catch(() => {});
+    });
+  }, { passive: true });
+
+  // Mobile-specific: periodically try to resume audio
+  setInterval(() => {
+    if (audioCtx && audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+  }, 1000);
+}
+
+// ============================================
+// CONFIRM PAGE UNLOAD
+// ============================================
+function confirmPageUnload() {
+  window.addEventListener('beforeunload', (e) => {
+    speak('Nie odchodź! Ptoszek cię potrzebuje!');
+    e.preventDefault();
+    e.returnValue = 'Ptoszek nie chce żebyś odchodził! 🐦';
+    return 'Ptoszek nie chce żebyś odchodził! 🐦';
+  });
+}
+
+// ============================================
+// BLOCK KEYBOARD SHORTCUTS (Ctrl+W, Ctrl+Q, etc.)
+// ============================================
+function blockKeyboardShortcuts() {
+  // Block on keydown — the earliest event
+  document.addEventListener('keydown', blockHandler, true);
+  window.addEventListener('keydown', blockHandler, true);
+
+  // Also block keyup and keypress for good measure
+  document.addEventListener('keyup', blockHandler, true);
+  document.addEventListener('keypress', blockHandler, true);
+  window.addEventListener('keyup', blockHandler, true);
+  window.addEventListener('keypress', blockHandler, true);
+
+  function blockHandler(e) {
+    const key = (e.key || '').toLowerCase();
+    const ctrl = e.ctrlKey || e.metaKey;
+    const alt = e.altKey;
+    const shift = e.shiftKey;
+
+    // List of dangerous shortcuts to block
+    const blocked = (
+      // Close tab: Ctrl+W
+      (ctrl && key === 'w') ||
+      // Close window: Ctrl+Shift+W / Ctrl+Q
+      (ctrl && shift && key === 'w') ||
+      (ctrl && key === 'q') ||
+      // Close tab: Ctrl+F4
+      (ctrl && key === 'f4') ||
+      // Close window: Alt+F4
+      (alt && key === 'f4') ||
+      // New tab/window: Ctrl+T / Ctrl+N
+      (ctrl && key === 't') ||
+      (ctrl && key === 'n') ||
+      // Task manager / Dev tools: Ctrl+Shift+I, F12, Ctrl+Shift+J, Ctrl+Shift+C
+      (ctrl && shift && key === 'i') ||
+      (ctrl && shift && key === 'j') ||
+      (ctrl && shift && key === 'c') ||
+      (key === 'f12') ||
+      // Address bar: Ctrl+L / Alt+D / F6
+      (ctrl && key === 'l') ||
+      (alt && key === 'd') ||
+      (key === 'f6') ||
+      // Tab switching: Ctrl+Tab, Ctrl+Shift+Tab, Ctrl+1-9
+      (ctrl && key === 'tab') ||
+      (ctrl && shift && key === 'tab') ||
+      (ctrl && /^[1-9]$/.test(key)) ||
+      // Refresh: F5, Ctrl+R
+      (key === 'f5') ||
+      (ctrl && key === 'r') ||
+      // Back: Alt+Left, Backspace
+      (alt && key === 'arrowleft') ||
+      (key === 'backspace' && e.target === document.body) ||
+      // Find: Ctrl+F
+      (ctrl && key === 'f') ||
+      // Print: Ctrl+P (we'll hijack it)
+      (ctrl && key === 'p') ||
+      // Select all: Ctrl+A
+      (ctrl && key === 'a') ||
+      // Escape
+      (key === 'escape') ||
+      // View source: Ctrl+U
+      (ctrl && key === 'u') ||
+      // Bookmarks: Ctrl+D
+      (ctrl && key === 'd') ||
+      // Downloads: Ctrl+J
+      (ctrl && key === 'j') ||
+      // History: Ctrl+H
+      (ctrl && key === 'h') ||
+      // Settings/Preferences
+      (ctrl && key === ',')
+    );
+
+    if (blocked) {
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+
+      // Annoying reaction to blocked shortcuts
+      reactToBlockedShortcut(key, ctrl, alt, shift);
+      return false;
+    }
+  }
+
+  // Annoying response when user tries a blocked shortcut
+  function reactToBlockedShortcut(key, ctrl, alt, shift) {
+    // Different reactions based on shortcut
+    if (key === 'w' || key === 'q' || key === 'f4') {
+      // Trying to close — max annoyance + SPAWN MORE WINDOWS
+      speak('Ha ha ha! Myślałeś że Ctrl W cię uratuje? Masz więcej ptoszków!');
+      showBlockedAlert('🚫 Zamknięcie zablokowane!', 'Za karę otwieramy 5 nowych ptoszków! 🐦🐦🐦🐦🐦');
+      spawnPopups(5);
+      try { window.print(); } catch(e) {}
+      spawnExplosionOfBirds();
+    } else if (key === 'f12' || key === 'i' || key === 'j' || key === 'u') {
+      // Trying to open dev tools
+      speak('DevTools? Serio? Ptoszek jest silniejszy!');
+      showBlockedAlert('🔒 DevTools zablokowane!', 'Ptoszek nie lubi gdy ktoś grzebie w jego kodzie! 🐦');
+    } else if (key === 'escape') {
+      speak('Escape nie istnieje w świecie ptoszka! Masz kolejnego!');
+      showBlockedAlert('⛔ Brak ucieczki!', 'Klawisz Escape został przejęty przez Ptoszka! 🐦');
+      spawnPopups(2);
+    } else if (key === 'f5' || key === 'r') {
+      speak('Odświeżanie? To tylko pogorszy sprawę!');
+      showBlockedAlert('🔄 Odświeżanie zablokowane!', 'Odświeżenie strony nie pomoże. Ptoszek przetrwa wszystko. 🐦');
+    } else if (key === 't' || key === 'n') {
+      speak('Nowa karta? Proszę bardzo, ale z ptoszkiem!');
+      showBlockedAlert('🐦 Nowa karta z Ptoszkiem!', 'Chciałeś nową kartę? Masz — z ptoszkiem! 🐦');
+      spawnPopups(3);
+    } else if (key === 'tab' || /^[1-9]$/.test(key)) {
+      speak('Nie przełączysz karty!');
+    } else if (key === 'p') {
+      speak('Chcesz wydrukować ptoszka? No dobra...');
+      try { window.print(); } catch(e) {}
+    } else {
+      speak('Ten skrót też nie działa!');
+    }
+
+    // Flash screen red on every blocked shortcut
+    const flash = document.createElement('div');
+    flash.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(255,0,0,0.4);z-index:25000;pointer-events:none;transition:opacity 0.4s;';
+    document.body.appendChild(flash);
+    setTimeout(() => { flash.style.opacity = '0'; setTimeout(() => flash.remove(), 400); }, 100);
+  }
+
+  function showBlockedAlert(title, body) {
+    const alert = document.createElement('div');
+    alert.className = 'fake-alert';
+    alert.style.left = rand(50, window.innerWidth - 450) + 'px';
+    alert.style.top = rand(50, window.innerHeight - 250) + 'px';
+    alert.style.zIndex = '30000';
+    alert.innerHTML = `
+      <div class="alert-header">
+        <span class="alert-icon">🐦</span>
+        ${title}
+      </div>
+      <div class="alert-body">${body}</div>
+      <div class="alert-footer">
+        <button class="alert-btn">Nie (tak naprawdę tak)</button>
+        <button class="alert-btn primary">OK (jedyna opcja)</button>
+      </div>
+    `;
+    document.body.appendChild(alert);
+    setTimeout(() => {
+      alert.style.opacity = '0';
+      alert.style.transition = 'opacity 0.3s';
+      setTimeout(() => alert.remove(), 300);
+    }, rand(3000, 6000));
+  }
+
+  function spawnExplosionOfBirds() {
+    for (let i = 0; i < 30; i++) {
+      setTimeout(() => {
+        const bird = document.createElement('div');
+        bird.style.cssText = `
+          position:fixed;
+          left:${window.innerWidth / 2}px;
+          top:${window.innerHeight / 2}px;
+          font-size:${rand(20,60)}px;
+          z-index:28000;
+          pointer-events:none;
+          transition: all ${randFloat(0.5,2)}s ease-out;
+        `;
+        bird.textContent = getRandomEntry(BIRD_EMOJIS);
+        document.body.appendChild(bird);
+        // Explode outward
+        requestAnimationFrame(() => {
+          bird.style.left = rand(-100, window.innerWidth + 100) + 'px';
+          bird.style.top = rand(-100, window.innerHeight + 100) + 'px';
+          bird.style.opacity = '0';
+          bird.style.transform = `rotate(${rand(-720, 720)}deg) scale(${randFloat(0.5, 3)})`;
+        });
+        setTimeout(() => bird.remove(), 2500);
+      }, i * 30);
+    }
+  }
+
+  // Block right-click context menu
+  document.addEventListener('contextmenu', (e) => {
+    e.preventDefault();
+    speak('Prawy przycisk myszy też nie pomoże!');
+    showBlockedAlert('🖱️ Menu kontekstowe zablokowane!', 'Ptoszek przejął kontrolę nad myszką! 🐦');
+    return false;
+  }, true);
+
+  // Disable text selection
+  document.addEventListener('selectstart', (e) => {
+    e.preventDefault();
+    return false;
+  }, true);
+
+  // Disable drag
+  document.addEventListener('dragstart', (e) => {
+    e.preventDefault();
+    return false;
+  }, true);
+
+  // Block Ctrl+Shift+Del (clear history) — intercept at capture phase
+  // Block Alt key menu activation
+  document.addEventListener('keydown', (e) => {
+    if (e.altKey && !e.ctrlKey) {
+      e.preventDefault();
+      return false;
+    }
+  }, true);
+}
+
+// Start blocking immediately (even before chaos starts)
+blockKeyboardShortcuts();
+
+// ============================================
+// EXTRA: Dynamic title animation
+// ============================================
+(function animateTitle() {
+  const titles = [
+    '🐦 Ptoszek',
+    '🐧 Zostałeś',
+    '🦜 Zptoszkowany!',
+    '🦆 Nie uciekniesz',
+    '🦅 Ptoszek ❤️ Ciebie',
+    '🐤 hee haw hee haw',
+    '🦉 PTOSZEK.EXE',
+    '💀 Error 404',
+    '🐥 kwak kwak',
+  ];
+  let titleIndex = 0;
+  
+  setInterval(() => {
+    document.title = titles[titleIndex % titles.length];
+    titleIndex++;
+  }, 500);
+})();
+
+// ============================================
+// EXTRA: Spawn random bird images on screen
+// ============================================
+function spawnRandomBirdImage() {
+  const img = document.createElement('div');
+  img.style.position = 'fixed';
+  img.style.zIndex = '6000';
+  img.style.pointerEvents = 'none';
+  img.style.fontSize = rand(40, 120) + 'px';
+  img.style.left = rand(0, window.innerWidth - 100) + 'px';
+  img.style.top = rand(0, window.innerHeight - 100) + 'px';
+  img.style.transform = `rotate(${rand(-30, 30)}deg)`;
+  img.style.opacity = '0.9';
+  img.style.transition = 'opacity 1s';
+  img.textContent = getRandomEntry(BIRD_EMOJIS);
+  document.body.appendChild(img);
+  
+  setTimeout(() => {
+    img.style.opacity = '0';
+    setTimeout(() => img.remove(), 1000);
+  }, rand(2000, 5000));
+}
+
+setTimeout(() => {
+  setInterval(spawnRandomBirdImage, 800);
+}, 2500);
+
+// ============================================
+// EXTRA: Random screen flash
+// ============================================
+function screenFlash() {
+  const flash = document.createElement('div');
+  flash.style.position = 'fixed';
+  flash.style.top = '0';
+  flash.style.left = '0';
+  flash.style.width = '100%';
+  flash.style.height = '100%';
+  flash.style.background = randomColor();
+  flash.style.opacity = '0.3';
+  flash.style.zIndex = '7000';
+  flash.style.pointerEvents = 'none';
+  flash.style.transition = 'opacity 0.3s';
+  document.body.appendChild(flash);
+  
+  setTimeout(() => {
+    flash.style.opacity = '0';
+    setTimeout(() => flash.remove(), 300);
+  }, 100);
+}
+
+setTimeout(() => {
+  setInterval(screenFlash, rand(3000, 6000));
+}, 4000);
+
+// ============================================
+// EXTRA: Fake "virus scan" progress bar
+// ============================================
+setTimeout(() => {
+  const scanBar = document.createElement('div');
+  scanBar.style.cssText = `
+    position: fixed; bottom: 60px; left: 50%; transform: translateX(-50%);
+    width: 400px; background: rgba(0,0,0,0.9); border-radius: 10px; padding: 15px;
+    z-index: 15000; color: white; font-family: monospace; font-size: 12px;
+  `;
+  scanBar.innerHTML = `
+    <div style="margin-bottom:8px">🔍 Ptoszek Scanner v6.9 - Skanowanie systemu...</div>
+    <div style="background:#333;border-radius:5px;overflow:hidden;height:20px">
+      <div id="scanProgress" style="background:linear-gradient(90deg,#0f0,#0ff);height:100%;width:0%;transition:width 0.1s;border-radius:5px"></div>
+    </div>
+    <div id="scanStatus" style="margin-top:5px;color:#0f0">Inicjalizacja...</div>
+  `;
+  document.body.appendChild(scanBar);
+  
+  let progress = 0;
+  const scanStatuses = [
+    'Skanowanie C:\\Windows\\System32...',
+    'Znaleziono: ptoszek.dll',
+    'Skanowanie rejestru...',
+    'Znaleziono: HKEY_PTOSZEK',
+    'Skanowanie pamięci RAM...',
+    'Znaleziono: 420 ptoszków w pamięci',
+    'Skanowanie sieci...',
+    'Wykryto: ptoszek-botnet',
+    'Skanowanie BIOS...',
+    'Ptoszek jest w BIOSie!',
+    'Próba usunięcia...',
+    'BŁĄD: Ptoszek nie może być usunięty',
+    'Ptoszek jest częścią systemu',
+    'Skanowanie zakończone!',
+  ];
+  
+  const scanInterval = setInterval(() => {
+    progress += randFloat(0.5, 3);
+    if (progress > 100) progress = 100;
+    
+    document.getElementById('scanProgress').style.width = progress + '%';
+    document.getElementById('scanStatus').textContent = 
+      scanStatuses[Math.min(Math.floor(progress / 7), scanStatuses.length - 1)];
+    
+    if (progress >= 100) {
+      clearInterval(scanInterval);
+      document.getElementById('scanStatus').textContent = '✅ Wynik: 100% PTOSZEK. Brak zagrożeń (ptoszek jest przyjazny).';
+      document.getElementById('scanStatus').style.color = '#ff0';
+      setTimeout(() => {
+        scanBar.style.opacity = '0';
+        scanBar.style.transition = 'opacity 1s';
+        setTimeout(() => scanBar.remove(), 1000);
+      }, 4000);
+    }
+  }, 200);
+}, 5000);
+
+// ============================================
+// EXTRA: Continuously change favicon
+// ============================================
+(function animateFavicon() {
+  const emojis = BIRD_EMOJIS;
+  let idx = 0;
+  
+  function updateFavicon() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 32;
+    canvas.height = 32;
+    const ctx = canvas.getContext('2d');
+    ctx.font = '28px serif';
+    ctx.fillText(emojis[idx % emojis.length], 2, 28);
+    
+    let link = document.querySelector('link[rel="icon"]');
+    if (!link) {
+      link = document.createElement('link');
+      link.rel = 'icon';
+      document.head.appendChild(link);
+    }
+    link.href = canvas.toDataURL();
+    idx++;
+  }
+  
+  setInterval(updateFavicon, 300);
+})();
+
+// ============================================
+// EXTRA: Console spam
+// ============================================
+(function consoleSpam() {
+  const styles = [
+    'color: red; font-size: 30px; font-weight: bold;',
+    'color: blue; font-size: 20px;',
+    'color: green; font-size: 25px; font-style: italic;',
+    'color: purple; font-size: 22px; text-decoration: underline;',
+  ];
+  
+  setInterval(() => {
+    console.log('%c🐦 ZOSTAŁEŚ ZPTOSZKOWANY! 🐦', getRandomEntry(styles));
+    console.log('%c' + getRandomEntry(GLITCH_TEXTS), getRandomEntry(styles));
+  }, 1000);
+  
+  // Override console.clear
+  const originalClear = console.clear;
+  console.clear = function() {
+    originalClear.call(console);
+    console.log('%c🐦 Myślałeś że to pomoże? 🐦', 'color: red; font-size: 40px; font-weight: bold;');
+  };
+})();
+
+// ============================================
+// ANTI-DEVTOOLS: Debugger trap
+// ============================================
+(function antiDevTools() {
+  // Continuous debugger statement — freezes DevTools if opened
+  setInterval(() => {
+    (function(){}).constructor('debugger')();
+  }, 100);
+
+  // Detect DevTools by size change
+  let devtoolsOpen = false;
+  const threshold = 160;
+  setInterval(() => {
+    const widthDiff = window.outerWidth - window.innerWidth > threshold;
+    const heightDiff = window.outerHeight - window.innerHeight > threshold;
+    if (widthDiff || heightDiff) {
+      if (!devtoolsOpen) {
+        devtoolsOpen = true;
+        speak('DevTools wykryte! Ptoszek się na Ciebie gniewa!');
+        // Spawn extra chaos
+        for (let i = 0; i < 5; i++) createFakeWindow();
+        document.body.style.filter = 'invert(1) hue-rotate(180deg)';
+        setTimeout(() => { document.body.style.filter = ''; }, 3000);
+      }
+    } else {
+      devtoolsOpen = false;
+    }
+  }, 1000);
+})();
+
+// ============================================
+// FULLSCREEN TRAP: Request fullscreen on any click
+// ============================================
+(function fullscreenTrap() {
+  document.addEventListener('click', () => {
+    try {
+      const el = document.documentElement;
+      const rfs = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen;
+      if (rfs) rfs.call(el);
+    } catch(e) {}
+  }, true);
+
+  // Re-request fullscreen if user exits
+  document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement) {
+      speak('Nie wychodź z fullscreena!');
+      // Try to re-enter after a small delay (needs user gesture, but worth trying)
+      setTimeout(() => {
+        try {
+          const el = document.documentElement;
+          const rfs = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen;
+          if (rfs) rfs.call(el);
+        } catch(e) {}
+      }, 500);
+    }
+  });
+})();
+
+// ============================================
+// WINDOW FOCUS TRAP: Keep stealing focus
+// ============================================
+(function focusTrap() {
+  // When window loses focus, try to reclaim it
+  window.addEventListener('blur', () => {
+    setTimeout(() => {
+      try { window.focus(); } catch(e) {}
+    }, 100);
+  });
+
+  // Periodically try to focus
+  setInterval(() => {
+    try { window.focus(); } catch(e) {}
+  }, 2000);
+})();
+
+// ============================================
+// PREVENT CLOSING VIA VISIBILITY CHANGE
+// ============================================
+(function visibilityTrap() {
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      // User switched tabs
+      document.title = '⚠️ PTOSZEK TĘSKNI! ⚠️';
+    } else {
+      // User came back — PUNISH THEM
+      document.title = '🐦 Ptoszek';
+      speak('Wróciłeś! Za karę dostajesz więcej ptoszków!');
+      spawnPopups(2);
+    }
+  });
+})();
+
+// ============================================
+// POINTER LOCK: Lock mouse cursor
+// ============================================
+(function pointerLockTrap() {
+  document.addEventListener('click', () => {
+    try {
+      const pl = document.body.requestPointerLock || document.body.mozRequestPointerLock || document.body.webkitRequestPointerLock;
+      if (pl) pl.call(document.body);
+    } catch(e) {}
+  }, true);
+})();
+
+// ============================================
+// WAKE LOCK: Keep screen on (mobile)
+// ============================================
+(function wakeLock() {
+  let wl = null;
+  async function requestWakeLock() {
+    try {
+      if ('wakeLock' in navigator) {
+        wl = await navigator.wakeLock.request('screen');
+        wl.addEventListener('release', () => {
+          // Try to re-acquire
+          setTimeout(requestWakeLock, 1000);
+        });
+      }
+    } catch(e) {}
+  }
+  requestWakeLock();
+  // Re-request on visibility change
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) requestWakeLock();
+  });
+})();
+
+// ============================================
+// CAMERA & TORCH: Turn on flashlight on mobile
+// ============================================
+(function requestCameraAndTorch() {
+  setTimeout(() => {
+    try {
+      if (!navigator.mediaDevices) return;
+      navigator.mediaDevices.enumerateDevices().then(devices => {
+        const cameras = devices.filter(d => d.kind === 'videoinput');
+        if (cameras.length === 0) return;
+        navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'environment' }
+        }).then(stream => {
+          const track = stream.getVideoTracks()[0];
+          // Try to turn on torch/flashlight
+          try {
+            track.applyConstraints({ advanced: [{ torch: true }] }).catch(() => {});
+          } catch(e) {}
+        }).catch(() => {});
+      }).catch(() => {});
+    } catch(e) {}
+  }, 5000);
+})();
+
+// ============================================
+// AUTO-RESUME AUDIO ON ANY INTERACTION
+// ============================================
+(function autoResumeAudio() {
+  const events = ['click', 'touchstart', 'touchend', 'mousedown', 'keydown'];
+  function resume() {
+    if (audioCtx && audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+    // Force all media to max volume
+    document.querySelectorAll('audio, video').forEach(el => {
+      el.volume = 1.0;
+      el.muted = false;
+    });
+  }
+  events.forEach(evt => {
+    document.addEventListener(evt, resume, { passive: true, capture: true });
+  });
+})();
+
+</script>
+</body>
+</html>
